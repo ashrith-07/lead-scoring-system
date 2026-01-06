@@ -1,55 +1,55 @@
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
 
 const eventSchema = new mongoose.Schema(
   {
-    
     event_id: {
       type: String,
-      required: [true, 'Event ID is required'],
-      unique: true, 
-      index: true, 
+      required: [true, "Event ID is required"],
+      unique: true,
+      index: true,
       trim: true,
     },
 
-   
     event_type: {
       type: String,
-      required: [true, 'Event type is required'],
+      required: [true, "Event type is required"],
       enum: {
         values: [
-          'email_open',
-          'page_view',
-          'form_submission',
-          'demo_request',
-          'purchase',
+          "email_open",
+          "page_view",
+          "form_submission",
+          "demo_request",
+          "purchase",
         ],
-        message: '{VALUE} is not a valid event type',
+        message: "{VALUE} is not a valid event type",
       },
-      index: true, 
+      index: true,
     },
 
-   
     lead_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Lead', 
-      required: [true, 'Lead ID is required'],
-      index: true, 
+      ref: "Lead",
+      required: [true, "Lead ID is required"],
+      index: true,
     },
     timestamp: {
       type: Date,
-      required: [true, 'Timestamp is required'],
-      index: true, 
+      required: [true, "Timestamp is required"],
+      index: true,
+      validate: {
+        validator: (v) => v <= new Date(),
+        message: "Event timestamp cannot be in the future",
+      },
     },
     processed: {
       type: Boolean,
       default: false,
-      index: true, 
+      index: true,
     },
     points_awarded: {
       type: Number,
       default: 0,
-      min: [0, 'Points awarded cannot be negative'],
+      min: [0, "Points awarded cannot be negative"],
     },
     metadata: {
       type: mongoose.Schema.Types.Mixed,
@@ -57,8 +57,8 @@ const eventSchema = new mongoose.Schema(
     },
     source: {
       type: String,
-      enum: ['webhook', 'api', 'batch_upload', 'manual'],
-      default: 'api',
+      enum: ["webhook", "api", "batch_upload", "manual"],
+      default: "api",
     },
     processed_at: {
       type: Date,
@@ -86,8 +86,8 @@ const eventSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: false, 
-    collection: 'events',
+    timestamps: false,
+    collection: "events",
   }
 );
 eventSchema.index({ processed: 1, timestamp: 1 });
@@ -95,59 +95,53 @@ eventSchema.index({ lead_id: 1, timestamp: -1 });
 eventSchema.index({ event_type: 1, timestamp: -1 });
 eventSchema.index({ processed: 1, retry_count: 1 });
 
-
-eventSchema.methods.markAsProcessed = async function (points) {
+eventSchema.methods.markAsProcessed = async function (points, session) {
   this.processed = true;
   this.processed_at = new Date();
   this.points_awarded = points;
   this.processing_error = null;
   this.updated_at = new Date();
-  return await this.save();
+  return await this.save({ session });
 };
 
-
-eventSchema.methods.markAsFailed = async function (error) {
+eventSchema.methods.markAsFailed = async function (error, session = null) {
   this.retry_count += 1;
   this.processing_error = error;
   this.updated_at = new Date();
-  return await this.save();
+  return session
+    ? this.save({ session })
+    : this.save();
 };
-
 
 eventSchema.methods.canRetry = function () {
   return this.retry_count < 3;
 };
 
-
 eventSchema.statics.getUnprocessed = async function (limit = 100) {
   return await this.find({ processed: false })
-    .sort({ timestamp: 1 }) 
+    .sort({ timestamp: 1 })
     .limit(limit)
-    .populate('lead_id', 'name email'); 
+    .populate("lead_id", "name email");
 };
-
 
 eventSchema.statics.getByLead = async function (leadId, limit = 100) {
   return await this.find({ lead_id: leadId })
-    .sort({ timestamp: -1 }) 
+    .sort({ timestamp: -1 })
     .limit(limit);
 };
 
-
-eventSchema.statics.exists = async function (eventId) {
-  const count = await this.countDocuments({ event_id: eventId });
-  return count > 0;
+eventSchema.statics.eventExists = async function (eventId) {
+  return !!(await this.findOne({ event_id: eventId }));
 };
-
 
 eventSchema.statics.getStats = async function () {
   return await this.aggregate([
     {
       $group: {
-        _id: '$event_type',
+        _id: "$event_type",
         count: { $sum: 1 },
-        total_points: { $sum: '$points_awarded' },
-        avg_points: { $avg: '$points_awarded' },
+        total_points: { $sum: "$points_awarded" },
+        avg_points: { $avg: "$points_awarded" },
       },
     },
     {
@@ -164,26 +158,9 @@ eventSchema.statics.getByDateRange = async function (startDate, endDate) {
     },
   })
     .sort({ timestamp: -1 })
-    .populate('lead_id', 'name email current_score');
+    .populate("lead_id", "name email current_score");
 };
 
-
-eventSchema.pre('save', function (next) {
-  this.updated_at = new Date();
-  next();
-});
-
-
-eventSchema.pre('save', function (next) {
-  if (this.timestamp > new Date()) {
-    next(new Error('Event timestamp cannot be in the future'));
-  } else {
-    next();
-  }
-});
-
-
-
-const Event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model("Event", eventSchema);
 
 module.exports = Event;

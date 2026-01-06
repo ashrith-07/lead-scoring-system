@@ -87,6 +87,21 @@ leadSchema.index({ is_deleted: 1, current_score: -1 });
 leadSchema.index({ status: 1, current_score: -1 });
 leadSchema.index({ created_at: -1 });
 
+leadSchema.methods.updateScore = async function (newScore, session = null) {
+  const maxScore = Number(process.env.MAX_SCORE) || 1000;
+  this.current_score = Math.min(newScore, maxScore);
+  
+  if (this.current_score >= 151) {
+    this.status = 'hot';
+  } else if (this.current_score >= 51) {
+    this.status = 'warm';
+  } else {
+    this.status = 'cold';
+  }
+  
+  this.updated_at = new Date();
+  return session ? this.save({ session }) : this.save();
+};
 
 leadSchema.methods.softDelete = async function () {
   this.is_deleted = true;
@@ -124,10 +139,10 @@ leadSchema.statics.getByStatus = async function (status) {
   }).sort({ current_score: -1 });
 };
 
-leadSchema.pre('save', function (next) {
+leadSchema.pre('save', function () {
   this.updated_at = new Date();
-  next();
 });
+
 
 
 
