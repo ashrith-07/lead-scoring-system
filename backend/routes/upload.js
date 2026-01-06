@@ -40,6 +40,8 @@ const upload = multer({
 });
 
 router.post('/file', upload.single('file'), async (req, res, next) => {
+  let filePath = null;
+  
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -48,8 +50,10 @@ router.post('/file', upload.single('file'), async (req, res, next) => {
       });
     }
 
-    const filePath = req.file.path;
+    filePath = req.file.path;
     const fileType = path.extname(req.file.originalname).toLowerCase() === '.csv' ? 'csv' : 'json';
+
+    console.log(`Processing ${fileType} file: ${filePath}`);
 
     const result = await batchProcessor.processBatchFile(filePath, fileType);
 
@@ -59,9 +63,17 @@ router.post('/file', upload.single('file'), async (req, res, next) => {
       message: 'File processed successfully',
     });
   } catch (error) {
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+    console.error('File upload error:', error);
+    
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+        console.log('Cleaned up file after error');
+      } catch (unlinkError) {
+        console.error('Failed to clean up file:', unlinkError);
+      }
     }
+    
     next(error);
   }
 });

@@ -1,0 +1,32 @@
+[
+  {
+    "event_id": "json_event_1",
+    "event_type": "email_open",
+    "lead_id": "REPLACE_WITH_LEAD_ID",
+    "timestamp": "2025-01-06T11:00:00Z",
+    "metadata": {
+      "campaign": "Winter Sale",
+      "subject": "50% Off Everything"
+    }
+  },
+  {
+    "event_id": "json_event_2",
+    "event_type": "page_view",
+    "lead_id": "REPLACE_WITH_LEAD_ID",
+    "timestamp": "2025-01-06T11:05:00Z",
+    "metadata": {
+      "page": "/pricing",
+      "duration": 45
+    }
+  },
+  {
+    "event_id": "json_event_3",
+    "event_type": "demo_request",
+    "lead_id": "REPLACE_WITH_LEAD_ID",
+    "timestamp": "2025-01-06T11:10:00Z",
+    "metadata": {
+      "preferred_date": "2025-01-10",
+      "notes": "Interested in enterprise plan"
+    }
+  }
+]

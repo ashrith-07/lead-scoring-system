@@ -1,0 +1,6 @@
+event_id,event_type,lead_id,timestamp
+csv_event_1,email_open,REPLACE_WITH_LEAD_ID,2025-01-06T10:00:00Z
+csv_event_2,page_view,REPLACE_WITH_LEAD_ID,2025-01-06T10:05:00Z
+csv_event_3,form_submission,REPLACE_WITH_LEAD_ID,2025-01-06T10:10:00Z
+csv_event_4,email_open,REPLACE_WITH_LEAD_ID,2025-01-06T10:15:00Z
+csv_event_5,page_view,REPLACE_WITH_LEAD_ID,2025-01-06T10:20:00Z

@@ -75,11 +75,19 @@ class BatchProcessor {
 
       const transformedEvents = events.map((event, index) => {
         try {
+          if (!event.event_id && !event.eventId) {
+            event.event_id = `json_${Date.now()}_${index}`;
+          }
+          
+          if (!event.timestamp && !event.time) {
+            event.timestamp = new Date().toISOString();
+          }
+
           return {
-            event_id: event.event_id || event.eventId || `json_${Date.now()}_${index}`,
+            event_id: event.event_id || event.eventId,
             event_type: event.event_type || event.eventType,
             lead_id: event.lead_id || event.leadId,
-            timestamp: event.timestamp || event.time || new Date().toISOString(),
+            timestamp: event.timestamp || event.time,
             metadata: event.metadata || {},
             source: 'batch_upload',
           };
@@ -102,43 +110,52 @@ class BatchProcessor {
   async processBatchFile(filePath, fileType = 'csv') {
     let parseResult;
 
-    if (fileType === 'csv') {
-      parseResult = await this.parseCSV(filePath);
-    } else if (fileType === 'json') {
-      parseResult = await this.parseJSON(filePath);
-    } else {
-      throw new Error(`Unsupported file type: ${fileType}`);
-    }
-
-    const { events, errors: parseErrors } = parseResult;
-
-    const bulkResult = await eventProcessor.bulkCreateEvents(events);
-
     try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      console.error('Failed to delete uploaded file:', error);
-    }
+      if (fileType === 'csv') {
+        parseResult = await this.parseCSV(filePath);
+      } else if (fileType === 'json') {
+        parseResult = await this.parseJSON(filePath);
+      } else {
+        throw new Error(`Unsupported file type: ${fileType}`);
+      }
 
-    return {
-      file_info: {
-        path: filePath,
-        type: fileType,
-      },
-      parsing: {
-        total_rows: events.length + parseErrors.length,
-        parsed_successfully: events.length,
-        parse_errors: parseErrors.length,
-        parse_error_details: parseErrors,
-      },
-      processing: bulkResult,
-      summary: {
-        total_rows: events.length + parseErrors.length,
-        successfully_created: bulkResult.created,
-        duplicates: bulkResult.duplicates,
-        errors: bulkResult.errors + parseErrors.length,
-      },
-    };
+      const { events, errors: parseErrors } = parseResult;
+
+      const bulkResult = await eventProcessor.bulkCreateEvents(events);
+
+      try {
+        await fs.unlink(filePath);
+      } catch (error) {
+        console.error('Failed to delete uploaded file:', error);
+      }
+
+      return {
+        file_info: {
+          path: filePath,
+          type: fileType,
+        },
+        parsing: {
+          total_rows: events.length + parseErrors.length,
+          parsed_successfully: events.length,
+          parse_errors: parseErrors.length,
+          parse_error_details: parseErrors,
+        },
+        processing: bulkResult,
+        summary: {
+          total_rows: events.length + parseErrors.length,
+          successfully_created: bulkResult.created,
+          duplicates: bulkResult.duplicates,
+          errors: bulkResult.errors + parseErrors.length,
+        },
+      };
+    } catch (error) {
+      try {
+        await fs.unlink(filePath);
+      } catch (unlinkError) {
+        console.error('Failed to delete file after error:', unlinkError);
+      }
+      throw error;
+    }
   }
 
   async processBatchArray(eventsArray) {
