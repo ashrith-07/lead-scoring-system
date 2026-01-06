@@ -147,8 +147,10 @@ leadSchema.pre('save', function () {
 
 
 leadSchema.virtual('fullInfo').get(function () {
-  return `${this.name} (${this.email}) - Score: ${this.current_score} [${this.status.toUpperCase()}]`;
+  const status = this.status ? this.status.toUpperCase() : 'UNKNOWN';
+  return `${this.name} (${this.email}) - Score: ${this.current_score} [${status}]`;
 });
+
 
 
 leadSchema.set('toJSON', { virtuals: true });

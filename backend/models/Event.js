@@ -6,7 +6,6 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: [true, "Event ID is required"],
       unique: true,
-      index: true,
       trim: true,
     },
 
