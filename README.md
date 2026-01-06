@@ -146,7 +146,7 @@ npm run dev
 
 Runs on:
 
-http://localhost:5050
+local environment (http://localhost:5050)
 
 Frontend
 cd frontend
@@ -156,7 +156,7 @@ npm start
 
 Runs on:
 
-http://localhost:3000
+local environment
 
 🎯 Why This Project Is Valuable
 
