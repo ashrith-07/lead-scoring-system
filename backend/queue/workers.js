@@ -20,6 +20,15 @@ function startWorkers() {
         throw new Error(result.error || 'Processing failed');
       }
 
+      try {
+        const { Lead } = require('../models');
+        const socketManager = require('../socket/socketManager');
+        const leaderboard = await Lead.getLeaderboard(10);
+        socketManager.emitLeaderboardUpdate(leaderboard);
+      } catch (socketError) {
+        console.error('Leaderboard emit error:', socketError.message);
+      }
+
       return {
         success: true,
         lead_id: result.result.lead.id,
@@ -60,6 +69,15 @@ function startWorkers() {
         } catch (error) {
           results.failed++;
         }
+      }
+
+      try {
+        const { Lead } = require('../models');
+        const socketManager = require('../socket/socketManager');
+        const leaderboard = await Lead.getLeaderboard(10);
+        socketManager.emitLeaderboardUpdate(leaderboard);
+      } catch (socketError) {
+        console.error('Leaderboard emit error:', socketError.message);
       }
 
       return {

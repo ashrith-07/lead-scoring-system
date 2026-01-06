@@ -136,7 +136,7 @@ class ScoringEngine {
       if (useTransaction) await session.commitTransaction();
       session.endSession();
 
-      return {
+      const result = {
         success: true,
         lead: {
           id: lead._id,
@@ -155,6 +155,33 @@ class ScoringEngine {
         },
         history_id: history[0]._id,
       };
+
+      try {
+        const socketManager = require('../socket/socketManager');
+        
+        socketManager.emitScoreUpdate(lead._id.toString(), {
+          name: lead.name,
+          email: lead.email,
+          previous_score: previousScore,
+          new_score: newScore,
+          previous_status: previousStatus,
+          new_status: newStatus,
+          points_awarded: points,
+          event_type: event.event_type,
+        });
+
+        socketManager.emitEventProcessed({
+          event_id: event.event_id,
+          event_type: event.event_type,
+          lead_id: lead._id.toString(),
+          points_awarded: points,
+        });
+      } catch (socketError) {
+        console.error('WebSocket emission error:', socketError.message);
+      }
+
+      return result;
+
     } catch (error) {
       if (useTransaction) await session.abortTransaction();
       session.endSession();
@@ -179,11 +206,28 @@ class ScoringEngine {
     totalScore = Math.min(totalScore, this.maxScore);
 
     const previousScore = lead.current_score;
+    const previousStatus = lead.status;
 
     lead.current_score = totalScore;
     lead.status = this.determineStatus(totalScore);
     lead.updated_at = new Date();
     await lead.save();
+
+    try {
+      const socketManager = require('../socket/socketManager');
+      socketManager.emitScoreUpdate(leadId, {
+        name: lead.name,
+        email: lead.email,
+        previous_score: previousScore,
+        new_score: totalScore,
+        previous_status: previousStatus,
+        new_status: lead.status,
+        points_awarded: totalScore - previousScore,
+        event_type: 'recalculation',
+      });
+    } catch (socketError) {
+      console.error('WebSocket emission error:', socketError.message);
+    }
 
     return {
       lead_id: leadId,
