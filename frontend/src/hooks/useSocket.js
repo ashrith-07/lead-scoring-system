@@ -1,0 +1,17 @@
+import { useEffect } from "react";
+import { io } from "socket.io-client";
+
+export default function useSocket(leadId, onUpdate) {
+  useEffect(() => {
+    const socket = io("http://localhost:5050");
+
+    socket.emit("subscribe:lead", leadId);
+
+    socket.on("score:updated", onUpdate);
+
+    return () => {
+      socket.emit("unsubscribe:lead", leadId);
+      socket.disconnect();
+    };
+  }, [leadId, onUpdate]);
+}

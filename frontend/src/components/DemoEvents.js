@@ -1,0 +1,32 @@
+import { submitEventImmediate } from "../services/api";
+
+const events = [
+  "email_open",
+  "page_view",
+  "form_submission",
+  "demo_request",
+  "purchase",
+];
+
+export default function DemoEvents({ leadId, onDone }) {
+  const run = async () => {
+    for (const e of events) {
+      await submitEventImmediate({
+        event_id: `${Date.now()}_${e}`,
+        event_type: e,
+        lead_id: leadId,
+        timestamp: new Date().toISOString(),
+      });
+    }
+    onDone();
+  };
+
+  return (
+    <button
+      onClick={run}
+      className="mt-4 w-full bg-green-600 text-white py-2 rounded"
+    >
+      🚀 Generate Demo Events
+    </button>
+  );
+}
