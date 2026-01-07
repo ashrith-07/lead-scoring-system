@@ -9,22 +9,20 @@ export default function Rules() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Scoring Rules</h2>
+    <div className="max-w-6xl mx-auto p-8">
+      <h1 className="text-2xl font-bold mb-6">Scoring Rules</h1>
 
       <div className="grid md:grid-cols-2 gap-4">
         {rules.map(r => (
           <div
             key={r._id}
-            className="bg-white p-5 rounded-lg shadow border"
+            className="bg-white rounded-lg shadow p-5 hover:shadow-md transition"
           >
-            <h3 className="font-semibold text-lg mb-2">
-              {r.event_type}
-            </h3>
-            <p className="text-gray-600">Points: {r.points}</p>
-            <span className="inline-block mt-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
-              Active
-            </span>
+            <h3 className="text-lg font-semibold">{r.event_type}</h3>
+            <p className="mt-2">Points: <strong>{r.points}</strong></p>
+            <p className="text-sm text-gray-500">
+              Status: {r.active ? "Active" : "Inactive"}
+            </p>
           </div>
         ))}
       </div>

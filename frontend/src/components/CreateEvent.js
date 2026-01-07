@@ -1,11 +1,11 @@
 import { submitEventImmediate } from "../services/api";
 
-const EVENTS = [
-  { id: "email_open", color: "bg-blue-600" },
-  { id: "page_view", color: "bg-indigo-600" },
-  { id: "form_submission", color: "bg-purple-600" },
-  { id: "demo_request", color: "bg-orange-600" },
-  { id: "purchase", color: "bg-green-600" },
+const events = [
+  "email_open",
+  "page_view",
+  "form_submission",
+  "demo_request",
+  "purchase",
 ];
 
 export default function CreateEvent({ leadId, onSuccess }) {
@@ -20,14 +20,14 @@ export default function CreateEvent({ leadId, onSuccess }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-3 mt-4">
-      {EVENTS.map(e => (
+    <div className="flex flex-wrap gap-2 mt-4">
+      {events.map(e => (
         <button
-          key={e.id}
-          onClick={() => submit(e.id)}
-          className={`${e.color} text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition`}
+          key={e}
+          onClick={() => submit(e)}
+          className="px-4 py-2 text-sm font-medium bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
         >
-          {e.id}
+          {e}
         </button>
       ))}
     </div>

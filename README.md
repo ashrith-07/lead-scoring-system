@@ -53,18 +53,17 @@ Clean UI using Tailwind CSS
 
 🏗️ System Architecture
 React Frontend
-      |
-      | REST API
-      v
+|
+| REST API
+v
 Node.js + Express Backend
-      |
-      | Event Queue
-      v
+|
+| Event Queue
+v
 Redis (Bull Queue)
-      |
-      v
+|
+v
 MongoDB
-
 
 Real-time updates are pushed using Socket.IO.
 
@@ -143,20 +142,18 @@ cd backend
 npm install
 npm run dev
 
-
 Runs on:
 
-local environment (http://localhost:5050)
+local environment (port:5050)
 
 Frontend
 cd frontend
 npm install
 npm start
 
-
 Runs on:
 
-local environment
+local environment(port:3000)
 
 🎯 Why This Project Is Valuable
 
