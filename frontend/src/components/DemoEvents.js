@@ -24,7 +24,7 @@ export default function DemoEvents({ leadId, onDone }) {
   return (
     <button
       onClick={run}
-      className="mt-4 w-full bg-green-600 text-white py-2 rounded"
+      className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition shadow"
     >
       🚀 Generate Demo Events
     </button>

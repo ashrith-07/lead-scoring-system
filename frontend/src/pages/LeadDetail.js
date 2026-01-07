@@ -29,19 +29,29 @@ export default function LeadDetail() {
   if (!lead) return null;
 
   return (
-    <div className="p-8">
-      <div className="bg-white p-6 shadow rounded">
-        <h1 className="text-xl font-bold">{lead.name}</h1>
-        <p>{lead.email}</p>
-        <p className="mt-2">Score: {lead.current_score}</p>
-        <p>Status: {lead.status}</p>
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-bold">{lead.name}</h2>
+        <p className="text-gray-600">{lead.email}</p>
+
+        <div className="flex gap-6 mt-4">
+          <div>
+            <div className="text-sm text-gray-500">Score</div>
+            <div className="text-2xl font-bold">{lead.current_score}</div>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-500">Status</div>
+            <div className="font-semibold capitalize">{lead.status}</div>
+          </div>
+        </div>
 
         <CreateEvent leadId={id} onSuccess={loadData} />
         <DemoEvents leadId={id} onDone={loadData} />
       </div>
 
-      <div className="mt-6 bg-white p-6 shadow rounded">
-        <h2 className="font-semibold mb-2">Score Trend</h2>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="font-semibold mb-4">Score Trend</h3>
         <LineChart width={600} height={300} data={trend}>
           <XAxis dataKey="timestamp" hide />
           <YAxis />
