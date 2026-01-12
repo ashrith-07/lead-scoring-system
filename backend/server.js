@@ -13,8 +13,21 @@ const socketManager = require('./socket/socketManager');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'https://lead-scoring-system-beta.vercel.app', 
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS error: ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
 
