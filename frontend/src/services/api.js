@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:5050/api";
+const BASE = process.env.REACT_APP_API_URL || "http://localhost:5050/api";
 
 const json = (r) => r.json();
 

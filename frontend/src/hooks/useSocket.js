@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5050";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5050";
 
 export default function useSocket(leadId, onUpdate) {
   useEffect(() => {
