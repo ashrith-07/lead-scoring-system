@@ -72,27 +72,28 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     console.log('🔧 Initializing Lead Scoring System...\n');
-
+    
     await connectDB();
-
+    
     const redisOk = await testRedisConnection();
-    if (redisOk) {
+    if (!redisOk) {
+      console.warn(' Warning: Redis is not connected. Queue system will not work.\n');
+    } else {
       startWorkers();
     }
-
+    
     const ScoringRule = require('./models/ScoringRule');
     await ScoringRule.initializeDefaults();
-
-    const server = http.createServer(app);
-    socketManager.initialize(server);
-
-    server.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Redis: ${redisOk ? 'Connected' : 'Disconnected'}`);
+    
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(` Server is running on port ${PORT}`);
     });
+
+    const socketManager = require('./socket/socketManager');
+    socketManager.initialize(server);
+    
   } catch (error) {
-    console.error('Failed to start server:', error.message);
+    console.error(' Failed to start server:', error.message);
     process.exit(1);
   }
 };
