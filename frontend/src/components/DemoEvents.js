@@ -1,17 +1,17 @@
-import { submitEventImmediate } from "../services/api";
+import api from '../services/api';
 
 const events = [
-  "email_open",
-  "page_view",
-  "form_submission",
-  "demo_request",
-  "purchase",
+  'email_open',
+  'page_view',
+  'form_submission',
+  'demo_request',
+  'purchase',
 ];
 
 export default function DemoEvents({ leadId, onDone }) {
   const run = async () => {
     for (const e of events) {
-      await submitEventImmediate({
+      await api.events.processNow({
         event_id: `${Date.now()}_${e}`,
         event_type: e,
         lead_id: leadId,
